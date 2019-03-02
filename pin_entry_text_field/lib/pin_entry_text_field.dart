@@ -11,6 +11,7 @@ class PinEntryTextField extends StatefulWidget {
   final inputStyle;
   final inputDecoration;
   final autoClearOnSubmit;
+  final String otp;
 
   PinEntryTextField({
     Key key,
@@ -22,6 +23,7 @@ class PinEntryTextField extends StatefulWidget {
     this.inputStyle,
     this.inputDecoration,
     this.autoClearOnSubmit = true,
+    this.otp = "",
   })
       : assert(fields > 0),
         super(key: key);
@@ -63,12 +65,6 @@ class PinEntryTextFieldState extends State<PinEntryTextField> {
     _focusNodes[i] = FocusNode();
     _textControllers[i] = TextEditingController();
 
-    _focusNodes[i].addListener(() {
-      if (_focusNodes[i].hasFocus) {
-        _textControllers[i].clear();
-      }
-    });
-
     return Container(
       width: widget.fieldWidth,
       margin: EdgeInsets.only(right: 10.0),
@@ -89,6 +85,8 @@ class PinEntryTextFieldState extends State<PinEntryTextField> {
             widget.onSubmit(_pin.join());
             if (widget.autoClearOnSubmit) {
               clearTextFields();
+            } else {
+              FocusScope.of(context).requestFocus(new FocusNode());
             }
           }
         },
@@ -101,7 +99,14 @@ class PinEntryTextFieldState extends State<PinEntryTextField> {
       return buildTextField(i, context);
     });
 
-    FocusScope.of(context).requestFocus(_focusNodes[0]);
+    if (widget.otp != null && widget.otp.isNotEmpty) {
+      List<String> chars = widget.otp.split("");
+      for (var i = 0; i < chars.length; i++) {
+        _textControllers[i].text = chars[i];
+      }
+    } else {
+      FocusScope.of(context).requestFocus(_focusNodes[0]);
+    }
 
     return Row(
         mainAxisAlignment: MainAxisAlignment.center,
