@@ -62,7 +62,7 @@ class PinEntryTextFieldState extends State<PinEntryTextField> {
   }
 
   Widget buildTextField(int i, BuildContext context) {
-    _focusNodes[i] = FocusNode();
+    if(_focusNodes[i] == null) _focusNodes[i] = FocusNode();
     _textControllers[i] = TextEditingController();
 
     return Container(
@@ -77,16 +77,23 @@ class PinEntryTextFieldState extends State<PinEntryTextField> {
         decoration: widget.inputDecoration,
         focusNode: _focusNodes[i],
         obscureText: widget.isTextObscure,
-        onChanged: (String str) {
-          _pin[i] = str;
-          if (i + 1 != widget.fields) {
-            FocusScope.of(context).requestFocus(_focusNodes[i + 1]);
+        onChanged: (str) {
+          if (str.isEmpty) {
+            _pin[i] = str;
+            if (i != 0) {
+              FocusScope.of(context).requestFocus(_focusNodes[i - 1]);
+            }
           } else {
-            widget.onSubmit(_pin.join());
-            if (widget.autoClearOnSubmit) {
-              clearTextFields();
+            _pin[i] = str;
+            if (i + 1 != widget.fields) {
+              FocusScope.of(context).requestFocus(_focusNodes[i + 1]);
             } else {
-              FocusScope.of(context).requestFocus(new FocusNode());
+              widget.onSubmit(_pin.join());
+              if (widget.autoClearOnSubmit) {
+                clearTextFields();
+              } else {
+                FocusScope.of(context).requestFocus(new FocusNode());
+              }
             }
           }
         },
